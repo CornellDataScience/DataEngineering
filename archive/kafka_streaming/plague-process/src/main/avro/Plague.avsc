@@ -1,0 +1,11 @@
+{"namespace": "avro",
+ "type": "record",
+ "name": "Plague_Update",
+ "fields": [
+     {"name": "location", "type": "string"},
+     {"name": "newDeaths",  "type": "int"},
+     {"name": "newCured",  "type": "int"},
+     {"name": "newInfections",  "type": "int"},
+     {"name": "severity",  "type": "float"}
+ ]
+}

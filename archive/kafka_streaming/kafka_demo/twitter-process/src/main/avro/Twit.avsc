@@ -1,0 +1,11 @@
+{"namespace": "avro",
+ "type": "record",
+ "name":"Twit",
+ "fields": [
+    {"name": "created_at", "type": "string"},
+    {"name": "id", "type": "int"},
+    {"name": "text", "type": "string"},
+    {"name": "location", "type": "string"},
+    {"name": "name", "type": "string"}
+ ]
+}
