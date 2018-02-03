@@ -1,0 +1,987 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "from pyspark.sql import DataFrame\n",
+    "from pyspark.sql import *\n",
+    "from pyspark.ml import Pipeline\n",
+    "from pyspark.ml.classification import *\n",
+    "from pyspark.ml.feature import VectorAssembler\n",
+    "from pyspark.ml.feature import Normalizer\n",
+    "from pyspark.ml.evaluation import BinaryClassificationEvaluator\n",
+    "from pyspark.sql.functions import *\n",
+    "from pyspark.sql.types import *\n",
+    "from pyspark.ml.tuning import *\n",
+    "from pyspark.ml.feature import Imputer\n",
+    "from pyspark.ml.feature import PCA\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import scipy as sc"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "dat = spark.read.csv(\"/hduser1/train_approx.csv\",header=True, inferSchema=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "test = spark.read.csv(\"/hduser1/test_approx.csv\", header=True, inferSchema=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "114\n",
+      "114321\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "40"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "print(len(dat.columns))\n",
+    "print(dat.count())\n",
+    "dat.rdd.getNumPartitions()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "#repartition to 5 blocks\n",
+    "dat = dat.repartition(200)\n",
+    "test = test.repartition(200)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "root\n",
+      " |-- _c0: integer (nullable = true)\n",
+      " |-- v1: double (nullable = true)\n",
+      " |-- v2: double (nullable = true)\n",
+      " |-- v4: double (nullable = true)\n",
+      " |-- v5: double (nullable = true)\n",
+      " |-- v6: double (nullable = true)\n",
+      " |-- v7: double (nullable = true)\n",
+      " |-- v8: double (nullable = true)\n",
+      " |-- v9: double (nullable = true)\n",
+      " |-- v10: double (nullable = true)\n",
+      " |-- v11: double (nullable = true)\n",
+      " |-- v12: double (nullable = true)\n",
+      " |-- v13: double (nullable = true)\n",
+      " |-- v14: double (nullable = true)\n",
+      " |-- v15: double (nullable = true)\n",
+      " |-- v16: double (nullable = true)\n",
+      " |-- v17: double (nullable = true)\n",
+      " |-- v18: double (nullable = true)\n",
+      " |-- v19: double (nullable = true)\n",
+      " |-- v20: double (nullable = true)\n",
+      " |-- v21: double (nullable = true)\n",
+      " |-- v23: double (nullable = true)\n",
+      " |-- v25: double (nullable = true)\n",
+      " |-- v26: double (nullable = true)\n",
+      " |-- v27: double (nullable = true)\n",
+      " |-- v28: double (nullable = true)\n",
+      " |-- v29: double (nullable = true)\n",
+      " |-- v32: double (nullable = true)\n",
+      " |-- v33: double (nullable = true)\n",
+      " |-- v34: double (nullable = true)\n",
+      " |-- v35: double (nullable = true)\n",
+      " |-- v36: double (nullable = true)\n",
+      " |-- v37: double (nullable = true)\n",
+      " |-- v38: double (nullable = true)\n",
+      " |-- v39: double (nullable = true)\n",
+      " |-- v40: double (nullable = true)\n",
+      " |-- v41: double (nullable = true)\n",
+      " |-- v42: double (nullable = true)\n",
+      " |-- v43: double (nullable = true)\n",
+      " |-- v44: double (nullable = true)\n",
+      " |-- v45: double (nullable = true)\n",
+      " |-- v46: double (nullable = true)\n",
+      " |-- v48: double (nullable = true)\n",
+      " |-- v49: double (nullable = true)\n",
+      " |-- v50: double (nullable = true)\n",
+      " |-- v51: double (nullable = true)\n",
+      " |-- v53: double (nullable = true)\n",
+      " |-- v54: double (nullable = true)\n",
+      " |-- v55: double (nullable = true)\n",
+      " |-- v57: double (nullable = true)\n",
+      " |-- v58: double (nullable = true)\n",
+      " |-- v59: double (nullable = true)\n",
+      " |-- v60: double (nullable = true)\n",
+      " |-- v61: double (nullable = true)\n",
+      " |-- v62: double (nullable = true)\n",
+      " |-- v63: double (nullable = true)\n",
+      " |-- v64: double (nullable = true)\n",
+      " |-- v65: double (nullable = true)\n",
+      " |-- v67: double (nullable = true)\n",
+      " |-- v68: double (nullable = true)\n",
+      " |-- v69: double (nullable = true)\n",
+      " |-- v70: double (nullable = true)\n",
+      " |-- v72: double (nullable = true)\n",
+      " |-- v73: double (nullable = true)\n",
+      " |-- v76: double (nullable = true)\n",
+      " |-- v77: double (nullable = true)\n",
+      " |-- v78: double (nullable = true)\n",
+      " |-- v80: double (nullable = true)\n",
+      " |-- v81: double (nullable = true)\n",
+      " |-- v82: double (nullable = true)\n",
+      " |-- v83: double (nullable = true)\n",
+      " |-- v84: double (nullable = true)\n",
+      " |-- v85: double (nullable = true)\n",
+      " |-- v86: double (nullable = true)\n",
+      " |-- v87: double (nullable = true)\n",
+      " |-- v88: double (nullable = true)\n",
+      " |-- v89: double (nullable = true)\n",
+      " |-- v90: double (nullable = true)\n",
+      " |-- v92: double (nullable = true)\n",
+      " |-- v93: double (nullable = true)\n",
+      " |-- v94: double (nullable = true)\n",
+      " |-- v95: double (nullable = true)\n",
+      " |-- v96: double (nullable = true)\n",
+      " |-- v97: double (nullable = true)\n",
+      " |-- v98: double (nullable = true)\n",
+      " |-- v99: double (nullable = true)\n",
+      " |-- v100: double (nullable = true)\n",
+      " |-- v101: double (nullable = true)\n",
+      " |-- v102: double (nullable = true)\n",
+      " |-- v103: double (nullable = true)\n",
+      " |-- v104: double (nullable = true)\n",
+      " |-- v105: double (nullable = true)\n",
+      " |-- v106: double (nullable = true)\n",
+      " |-- v108: double (nullable = true)\n",
+      " |-- v109: double (nullable = true)\n",
+      " |-- v111: double (nullable = true)\n",
+      " |-- v114: double (nullable = true)\n",
+      " |-- v115: double (nullable = true)\n",
+      " |-- v116: double (nullable = true)\n",
+      " |-- v117: double (nullable = true)\n",
+      " |-- v118: double (nullable = true)\n",
+      " |-- v119: double (nullable = true)\n",
+      " |-- v120: double (nullable = true)\n",
+      " |-- v121: double (nullable = true)\n",
+      " |-- v122: double (nullable = true)\n",
+      " |-- v123: double (nullable = true)\n",
+      " |-- v124: double (nullable = true)\n",
+      " |-- v126: double (nullable = true)\n",
+      " |-- v127: double (nullable = true)\n",
+      " |-- v128: double (nullable = true)\n",
+      " |-- v129: double (nullable = true)\n",
+      " |-- v130: double (nullable = true)\n",
+      " |-- v131: double (nullable = true)\n",
+      " |-- target: integer (nullable = true)\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "dat.printSchema()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "dat = dat.drop('_c0')\n",
+    "test = test.drop('_c0')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[Row(v1=0.549202321432276, v2=-0.183410642874607, v4=-0.984726772013345, v5=0.631737860967875, v6=-0.705942434510522, v7=0.36416176263291, v8=-0.333771445044666, v9=1.11289161582678, v10=-0.813583442386077, v11=0.568565759417354, v12=-0.430230708446025, v13=-0.277685907501759, v14=-0.402173545239565, v15=-0.484472293029019, v16=0.129548948524315, v17=-0.547629491690922, v18=1.0027752488155, v19=-0.234537516638102, v20=0.115570581593702, v21=-0.0415222883244074, v23=-0.175107398382121, v25=-0.419425653802326, v26=-0.373206812087477, v27=-0.0995976603988031, v28=1.06861698160458, v29=-0.340558097349032, v32=-0.0523433486497337, v33=1.17784367340268, v34=0.110364454797762, v35=0.495958473969514, v36=0.238579641899322, v37=0.362926177312937, v38=-0.153196198867103, v39=0.274539772204937, v40=-0.471521878653042, v41=0.308971184778928, v42=-0.191140154883025, v43=-0.45772156141488, v44=0.711834398123334, v45=1.13874466517825, v46=-0.45434738756299, v48=0.748228199406049, v49=0.247017681366879, v50=-1.03496450009017, v51=-1.14162593043766, v53=0.86692224299334, v54=-0.412175480656361, v55=1.33254297766654, v57=-0.102578767829705, v58=-0.586674859018779, v59=0.296320001124557, v60=-0.465498723742291, v61=-0.338189534424259, v62=-0.0421873740826805, v63=-0.402744581646088, v64=-0.65591930231223, v65=-0.39301563498285, v67=0.0883434106357632, v68=0.174143344410907, v69=1.10523547124213, v70=0.684860853591364, v72=-0.467336282410961, v73=-0.0467155257371181, v76=-0.458334717313966, v77=0.121335916143722, v78=0.10588626419521, v80=1.86475733157015, v81=-0.949239234645208, v82=3.73662969176957, v83=1.07381799155729, v84=1.15203890699961, v85=-0.636078442339246, v86=-0.548927799561019, v87=-0.512747736921962, v88=-1.01066290727377, v89=-0.531141624260365, v90=0.278738283499141, v92=-0.412677248358946, v93=-0.188297065310891, v94=-0.245061559900707, v95=-0.277278424837205, v96=-0.0209612213714454, v97=-0.803164653355734, v98=-0.345609546879177, v99=-0.790574921613177, v100=0.574354288511874, v101=-0.34010060764001, v102=-0.354113620800815, v103=-0.489463288600411, v104=-0.572901649450401, v105=-0.431233693846766, v106=-0.723752662275252, v108=-0.555710485797892, v109=-1.57139202492487, v111=0.843069940466865, v114=0.281255464866016, v115=-1.0811551425566, v116=-0.378390702795082, v117=-2.65144346156838, v118=-0.697560525340328, v119=0.510642003414833, v120=-1.04391081545498, v121=0.985174415302026, v122=0.210321785501601, v123=0.0519277420236652, v124=-0.396040829436012, v126=0.125570871239262, v127=-0.422750723900578, v128=-0.721574067214758, v129=-0.450406860665052, v130=0.589803762514529, v131=-0.199727850419498, target=0)]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# specify the number of rows to display by using the take()\n",
+    "dat.take(1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# how to count unique classes in a column\n",
+    "dat.select(col(\"target\")).distinct().count()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[Row(target=1, count=87021), Row(target=0, count=27300)]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# we can do an aggregate count to see the distribution of the classes\n",
+    "dat.groupBy(col(\"target\")).count().collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[Row(count(1)=87021), Row(count(1)=27300)]"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#we can do the same thing in sql code\n",
+    "# we must first create a \"view\" of the data in order to execute SQL functions\n",
+    "dat.createOrReplaceTempView(\"dat\")\n",
+    "spark.sql(\"SELECT COUNT(*) FROM dat GROUP BY Target\").collect()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "['v3', 'v22', 'v24', 'v30', 'v31', 'v47', 'v52', 'v56', 'v66', 'v71', 'v74', 'v75', 'v79', 'v91', 'v107', 'v110', 'v112', 'v113', 'v125']\n",
+      "['target', 'v38', 'v62', 'v72', 'v129']\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Convert string types(categorical) to integerTypes\n",
+    "types = [str(f.dataType) for f in dat.schema.fields]\n",
+    "ind_str = [i for i in range(len(types)) if types[i] is 'StringType']\n",
+    "ind_int = [i for i in range(len(types)) if types[i] is 'IntegerType']\n",
+    "stringcol= [dat.columns[i] for i in ind_str]\n",
+    "intcol = [dat.columns[i] for i in ind_int]\n",
+    "print(stringcol)\n",
+    "print(intcol)\n",
+    "del ind_str, ind_int, types"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# remove all string columns\n",
+    "for colname in stringcol:\n",
+    "    dat = dat.drop(colname)\n",
+    "    test = test.drop(colname)\n",
+    "    \n",
+    "# remove 'target' from inttype list\n",
+    "intcol = intcol[1:]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['target',\n",
+       " 'v1',\n",
+       " 'v2',\n",
+       " 'v4',\n",
+       " 'v5',\n",
+       " 'v6',\n",
+       " 'v7',\n",
+       " 'v8',\n",
+       " 'v9',\n",
+       " 'v10',\n",
+       " 'v11',\n",
+       " 'v12',\n",
+       " 'v13',\n",
+       " 'v14',\n",
+       " 'v15',\n",
+       " 'v16',\n",
+       " 'v17',\n",
+       " 'v18',\n",
+       " 'v19',\n",
+       " 'v20',\n",
+       " 'v21',\n",
+       " 'v23',\n",
+       " 'v25',\n",
+       " 'v26',\n",
+       " 'v27',\n",
+       " 'v28',\n",
+       " 'v29',\n",
+       " 'v32',\n",
+       " 'v33',\n",
+       " 'v34',\n",
+       " 'v35',\n",
+       " 'v36',\n",
+       " 'v37',\n",
+       " 'v39',\n",
+       " 'v40',\n",
+       " 'v41',\n",
+       " 'v42',\n",
+       " 'v43',\n",
+       " 'v44',\n",
+       " 'v45',\n",
+       " 'v46',\n",
+       " 'v48',\n",
+       " 'v49',\n",
+       " 'v50',\n",
+       " 'v51',\n",
+       " 'v53',\n",
+       " 'v54',\n",
+       " 'v55',\n",
+       " 'v57',\n",
+       " 'v58',\n",
+       " 'v59',\n",
+       " 'v60',\n",
+       " 'v61',\n",
+       " 'v63',\n",
+       " 'v64',\n",
+       " 'v65',\n",
+       " 'v67',\n",
+       " 'v68',\n",
+       " 'v69',\n",
+       " 'v70',\n",
+       " 'v73',\n",
+       " 'v76',\n",
+       " 'v77',\n",
+       " 'v78',\n",
+       " 'v80',\n",
+       " 'v81',\n",
+       " 'v82',\n",
+       " 'v83',\n",
+       " 'v84',\n",
+       " 'v85',\n",
+       " 'v86',\n",
+       " 'v87',\n",
+       " 'v88',\n",
+       " 'v89',\n",
+       " 'v90',\n",
+       " 'v92',\n",
+       " 'v93',\n",
+       " 'v94',\n",
+       " 'v95',\n",
+       " 'v96',\n",
+       " 'v97',\n",
+       " 'v98',\n",
+       " 'v99',\n",
+       " 'v100',\n",
+       " 'v101',\n",
+       " 'v102',\n",
+       " 'v103',\n",
+       " 'v104',\n",
+       " 'v105',\n",
+       " 'v106',\n",
+       " 'v108',\n",
+       " 'v109',\n",
+       " 'v111',\n",
+       " 'v114',\n",
+       " 'v115',\n",
+       " 'v116',\n",
+       " 'v117',\n",
+       " 'v118',\n",
+       " 'v119',\n",
+       " 'v120',\n",
+       " 'v121',\n",
+       " 'v122',\n",
+       " 'v123',\n",
+       " 'v124',\n",
+       " 'v126',\n",
+       " 'v127',\n",
+       " 'v128',\n",
+       " 'v130',\n",
+       " 'v131',\n",
+       " 'v38cast',\n",
+       " 'v62cast',\n",
+       " 'v72cast',\n",
+       " 'v129cast']"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dat.columns"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "#Imputer requires that all columns it uses be floattype or doubletype, so let's convert ints to floats\n",
+    "for colname in intcol:\n",
+    "    dat = dat.withColumn( colname+\"cast\", col(colname).cast(\"float\"))\n",
+    "    dat = dat.drop(colname)\n",
+    "    test = test.withColumn( colname+\"cast\", col(colname).cast(\"float\"))\n",
+    "    test = test.drop(colname)\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "#Impute missing values for both dat and test using built-in imputer\n",
+    "#Starter pack for missing value imputation\n",
+    "newcolnames = [colname+\"new\" for colname in dat.columns[1:]]\n",
+    "imp = Imputer(strategy = 'mean',missingValue=None, inputCols = dat.columns[1:],outputCols=newcolnames )\n",
+    "model = imp.fit(dat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "dat = model.transform(dat)\n",
+    "test = model.transform(test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['v38cast',\n",
+       " 'v62cast',\n",
+       " 'v72cast',\n",
+       " 'v129cast',\n",
+       " 'v1new',\n",
+       " 'v2new',\n",
+       " 'v4new',\n",
+       " 'v5new',\n",
+       " 'v6new',\n",
+       " 'v7new',\n",
+       " 'v8new',\n",
+       " 'v9new',\n",
+       " 'v10new',\n",
+       " 'v11new',\n",
+       " 'v12new',\n",
+       " 'v13new',\n",
+       " 'v14new',\n",
+       " 'v15new',\n",
+       " 'v16new',\n",
+       " 'v17new',\n",
+       " 'v18new',\n",
+       " 'v19new',\n",
+       " 'v20new',\n",
+       " 'v21new',\n",
+       " 'v23new',\n",
+       " 'v25new',\n",
+       " 'v26new',\n",
+       " 'v27new',\n",
+       " 'v28new',\n",
+       " 'v29new',\n",
+       " 'v32new',\n",
+       " 'v33new',\n",
+       " 'v34new',\n",
+       " 'v35new',\n",
+       " 'v36new',\n",
+       " 'v37new',\n",
+       " 'v39new',\n",
+       " 'v40new',\n",
+       " 'v41new',\n",
+       " 'v42new',\n",
+       " 'v43new',\n",
+       " 'v44new',\n",
+       " 'v45new',\n",
+       " 'v46new',\n",
+       " 'v48new',\n",
+       " 'v49new',\n",
+       " 'v50new',\n",
+       " 'v51new',\n",
+       " 'v53new',\n",
+       " 'v54new',\n",
+       " 'v55new',\n",
+       " 'v57new',\n",
+       " 'v58new',\n",
+       " 'v59new',\n",
+       " 'v60new',\n",
+       " 'v61new',\n",
+       " 'v63new',\n",
+       " 'v64new',\n",
+       " 'v65new',\n",
+       " 'v67new',\n",
+       " 'v68new',\n",
+       " 'v69new',\n",
+       " 'v70new',\n",
+       " 'v73new',\n",
+       " 'v76new',\n",
+       " 'v77new',\n",
+       " 'v78new',\n",
+       " 'v80new',\n",
+       " 'v81new',\n",
+       " 'v82new',\n",
+       " 'v83new',\n",
+       " 'v84new',\n",
+       " 'v85new',\n",
+       " 'v86new',\n",
+       " 'v87new',\n",
+       " 'v88new',\n",
+       " 'v89new',\n",
+       " 'v90new',\n",
+       " 'v92new',\n",
+       " 'v93new',\n",
+       " 'v94new',\n",
+       " 'v95new',\n",
+       " 'v96new',\n",
+       " 'v97new',\n",
+       " 'v98new',\n",
+       " 'v99new',\n",
+       " 'v100new',\n",
+       " 'v101new',\n",
+       " 'v102new',\n",
+       " 'v103new',\n",
+       " 'v104new',\n",
+       " 'v105new',\n",
+       " 'v106new',\n",
+       " 'v108new',\n",
+       " 'v109new',\n",
+       " 'v111new',\n",
+       " 'v114new',\n",
+       " 'v115new',\n",
+       " 'v116new',\n",
+       " 'v117new',\n",
+       " 'v118new',\n",
+       " 'v119new',\n",
+       " 'v120new',\n",
+       " 'v121new',\n",
+       " 'v122new',\n",
+       " 'v123new',\n",
+       " 'v124new',\n",
+       " 'v126new',\n",
+       " 'v127new',\n",
+       " 'v128new',\n",
+       " 'v130new',\n",
+       " 'v131new',\n",
+       " 'v38castnew',\n",
+       " 'v62castnew',\n",
+       " 'v72castnew',\n",
+       " 'v129castnew']"
+      ]
+     },
+     "execution_count": 52,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "features = dat.columns[109:]\n",
+    "features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# convert the columns into a single feature vector\n",
+    "\n",
+    "assembler = VectorAssembler(\n",
+    "    inputCols=[x for x in dat.columns if x != 'target'],\n",
+    "    outputCol='features')\n",
+    "\n",
+    "dat_processed = assembler.transform(dat)\n",
+    "dat_processed = dat_processed.select(col('target'),col('features'))\n",
+    "test_processed = assembler.transform(test)\n",
+    "test_processed = test_processed.select(col('id'),col('features'))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "root\n",
+      " |-- target: integer (nullable = true)\n",
+      " |-- features: vector (nullable = true)\n",
+      "\n",
+      "root\n",
+      " |-- id: integer (nullable = true)\n",
+      " |-- features: vector (nullable = true)\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "dat_processed.printSchema()\n",
+    "test_processed.printSchema()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "# Additionally how to cross validate\n",
+    "\n",
+    "logit = LogisticRegression(featuresCol='features',labelCol='target')\n",
+    "cart = DecisionTreeClassifier(featuresCol='features',labelCol='target')\n",
+    "gbt = GBTClassifier(featuresCol='features',labelCol='target')\n",
+    "rf = RandomForestClassifier(featuresCol='features',labelCol='target')\n",
+    "\n",
+    "paramGrid_logit = ParamGridBuilder() \\\n",
+    "    .addGrid(logit.regParam, [0.01,0.02]) \\\n",
+    "    .addGrid(logit.aggregationDepth, [9,10,11, 12]) \\\n",
+    "    .addGrid(logit.maxIter, [500]) \\\n",
+    "    .build()\n",
+    "    \n",
+    "paramGrid_cart = ParamGridBuilder() \\\n",
+    "    .addGrid(cart.maxDepth, [12, 15, 18]) \\\n",
+    "    .addGrid(cart.cacheNodeIds,[True]) \\\n",
+    "    .addGrid(cart.maxMemoryInMB,[512])\\\n",
+    "    .addGrid(cart.getMaxBins, [1000]) \\\n",
+    "    .build()\n",
+    "    \n",
+    "paramGrid_gbt = ParamGridBuilder() \\\n",
+    "    .addGrid(gbt.maxDepth, [8,10,12]) \\\n",
+    "    .addGrid(gbt.stepSize,[0.01]) \\\n",
+    "    .addGrid(gbt.maxIter,[10,20]) \\\n",
+    "    .build()\n",
+    "\n",
+    "paramGrid_rf = paramGrid_gbt = ParamGridBuilder() \\\n",
+    "    .addGrid(rf.maxDepth, [8,10,12]) \\\n",
+    "    .addGrid(rf.numTrees,[1000]) \\\n",
+    "    .build()\n",
+    "    \n",
+    "evaluator = BinaryClassificationEvaluator(labelCol='target')\n",
+    "    \n",
+    "\n",
+    "cv_logit = CrossValidator(estimator=logit,evaluator=evaluator,estimatorParamMaps=paramGrid_logit,numFolds=5)\n",
+    "cv_cart = CrossValidator(estimator=cart,evaluator=evaluator,estimatorParamMaps=paramGrid_cart,numFolds=5)\n",
+    "cv_gbt = CrossValidator(estimator=gbt,evaluator=evaluator,estimatorParamMaps=paramGrid_gbt,numFolds=5)\n",
+    "cv_rf = CrossValidator(estimator=rf,evaluator=evaluator,estimatorParamMaps=paramGrid_gbt,numFolds=5)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "cacheNodeIds: If false, the algorithm will pass trees to executors to match instances with nodes. If true, the algorithm will cache node IDs for each instance. Caching can speed up training of deeper trees. Users can set how often should the cache be checkpointed or disable it by setting checkpointInterval. (default: False)\n",
+      "checkpointInterval: set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations. (default: 10)\n",
+      "featuresCol: features column name. (default: features, current: features)\n",
+      "impurity: Criterion used for information gain calculation (case-insensitive). Supported options: entropy, gini (default: gini)\n",
+      "labelCol: label column name. (default: label, current: target)\n",
+      "maxBins: Max number of bins for discretizing continuous features.  Must be >=2 and >= number of categories for any categorical feature. (default: 32)\n",
+      "maxDepth: Maximum depth of the tree. (>= 0) E.g., depth 0 means 1 leaf node; depth 1 means 1 internal node + 2 leaf nodes. (default: 5)\n",
+      "maxMemoryInMB: Maximum memory in MB allocated to histogram aggregation. If too small, then 1 node will be split per iteration, and its aggregates may exceed this size. (default: 256)\n",
+      "minInfoGain: Minimum information gain for a split to be considered at a tree node. (default: 0.0)\n",
+      "minInstancesPerNode: Minimum number of instances each child must have after split. If a split causes the left or right child to have fewer than minInstancesPerNode, the split will be discarded as invalid. Should be >= 1. (default: 1)\n",
+      "predictionCol: prediction column name. (default: prediction)\n",
+      "probabilityCol: Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities. (default: probability)\n",
+      "rawPredictionCol: raw prediction (a.k.a. confidence) column name. (default: rawPrediction)\n",
+      "seed: random seed. (default: 956191873026065186)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(cart.explainParams())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "cvmodel_logit = cv_logit.fit(dat_processed)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "cvmodel_cart = cv_cart.fit(dat_processed)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "cvmodel_gbt = cv_gbt.fit(dat_processed)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "cvmodel_rf = cv_rf.fit(dat_processed)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0.7041862595079947, 0.704424543735865, 0.7042356359089038, 0.7029367141978042, 0.70373633612059, 0.7032533526133657, 0.7052458436785156, 0.7050934145375579, 0.7027451905653928, 0.7052838174892688, 0.7009177777711764, 0.703205664031693, 0.7050502244778432, 0.7044271588810254, 0.7035025971538967, 0.7011709853040502, 0.7032983059167748, 0.7022826306368846, 0.6995183886134686, 0.7025202149644872, 0.7023089529475035, 0.7015199688392793, 0.7025654520828395, 0.7004373310718209, 0.7007703436917778]\n",
+      "[0.5508036232085827, 0.6011084205308219, 0.6559621982638756]\n",
+      "[0.7232520521627201, 0.7236565728924944, 0.7251317656920119]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(cvmodel_logit.avgMetrics)\n",
+    "print(cvmodel_cart.avgMetrics)\n",
+    "print(cvmodel_gbt.avgMetrics)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<matplotlib.figure.Figure at 0x7f90a4a3ea58>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "plt.plot(cvmodel_logit.avgMetrics)\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[0.9923309718969948, 0.9948133442644839, 0.9965246050430626]"
+      ]
+     },
+     "execution_count": 48,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "rf = RandomForestClassifier(featuresCol='feature',labelCol=\"Class\",)\n",
+    "pipeline_rf = Pipeline(stages=[assembler,normalizer, rf])\n",
+    "\n",
+    "paramGrid_rf = ParamGridBuilder() \\\n",
+    "    .addGrid(rf.maxDepth, [8, 9,10]) \\\n",
+    "    .addGrid(rf.numTrees, [100]) \\\n",
+    "    .build()\n",
+    "    \n",
+    "cv_rf = CrossValidator(estimator=pipeline_rf, evaluator=evaluator, numFolds=10, estimatorParamMaps=paramGrid_rf)\n",
+    "cvmodel_rf = cv_rf.fit(dat)\n",
+    "cvmodel_rf.avgMetrics"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 58,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "dat.rdd.sampleByKey(withReplacement=False,fractions={0:0.0001, 1:1})"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 61,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "Py4JJavaError",
+     "evalue": "An error occurred while calling z:org.apache.spark.api.python.PythonRDD.runJob.\n: org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 178673.0 failed 4 times, most recent failure: Lost task 0.3 in stage 178673.0 (TID 556659, mylaptop, executor 3): java.io.IOException: Cannot run program \"/home/hduser1/anaconda3/bin/python\": error=2, No such file or directory\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1048)\n\tat org.apache.spark.api.python.PythonWorkerFactory.startDaemon(PythonWorkerFactory.scala:163)\n\tat org.apache.spark.api.python.PythonWorkerFactory.createThroughDaemon(PythonWorkerFactory.scala:89)\n\tat org.apache.spark.api.python.PythonWorkerFactory.create(PythonWorkerFactory.scala:65)\n\tat org.apache.spark.SparkEnv.createPythonWorker(SparkEnv.scala:117)\n\tat org.apache.spark.api.python.PythonRunner.compute(PythonRDD.scala:128)\n\tat org.apache.spark.api.python.PythonRDD.compute(PythonRDD.scala:63)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:108)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.io.IOException: error=2, No such file or directory\n\tat java.lang.UNIXProcess.forkAndExec(Native Method)\n\tat java.lang.UNIXProcess.<init>(UNIXProcess.java:247)\n\tat java.lang.ProcessImpl.start(ProcessImpl.java:134)\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)\n\t... 14 more\n\nDriver stacktrace:\n\tat org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:1499)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1487)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1486)\n\tat scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)\n\tat scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)\n\tat org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1486)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n\tat scala.Option.foreach(Option.scala:257)\n\tat org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:814)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:1714)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1669)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1658)\n\tat org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:48)\n\tat org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:630)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2022)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2043)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2062)\n\tat org.apache.spark.api.python.PythonRDD$.runJob(PythonRDD.scala:446)\n\tat org.apache.spark.api.python.PythonRDD.runJob(PythonRDD.scala)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)\n\tat py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)\n\tat py4j.Gateway.invoke(Gateway.java:280)\n\tat py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)\n\tat py4j.commands.CallCommand.execute(CallCommand.java:79)\n\tat py4j.GatewayConnection.run(GatewayConnection.java:214)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.io.IOException: Cannot run program \"/home/hduser1/anaconda3/bin/python\": error=2, No such file or directory\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1048)\n\tat org.apache.spark.api.python.PythonWorkerFactory.startDaemon(PythonWorkerFactory.scala:163)\n\tat org.apache.spark.api.python.PythonWorkerFactory.createThroughDaemon(PythonWorkerFactory.scala:89)\n\tat org.apache.spark.api.python.PythonWorkerFactory.create(PythonWorkerFactory.scala:65)\n\tat org.apache.spark.SparkEnv.createPythonWorker(SparkEnv.scala:117)\n\tat org.apache.spark.api.python.PythonRunner.compute(PythonRDD.scala:128)\n\tat org.apache.spark.api.python.PythonRDD.compute(PythonRDD.scala:63)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:108)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\t... 1 more\nCaused by: java.io.IOException: error=2, No such file or directory\n\tat java.lang.UNIXProcess.forkAndExec(Native Method)\n\tat java.lang.UNIXProcess.<init>(UNIXProcess.java:247)\n\tat java.lang.ProcessImpl.start(ProcessImpl.java:134)\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)\n\t... 14 more\n",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mPy4JJavaError\u001b[0m                             Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-61-d398b7eb3595>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mdat\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrdd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtake\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/usr/local/spark/python/pyspark/rdd.py\u001b[0m in \u001b[0;36mtake\u001b[0;34m(self, num)\u001b[0m\n\u001b[1;32m   1341\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1342\u001b[0m             \u001b[0mp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mrange\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpartsScanned\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mmin\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpartsScanned\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mnumPartsToTry\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtotalParts\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1343\u001b[0;31m             \u001b[0mres\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcontext\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrunJob\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtakeUpToNumLeft\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mp\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1344\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1345\u001b[0m             \u001b[0mitems\u001b[0m \u001b[0;34m+=\u001b[0m \u001b[0mres\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/spark/python/pyspark/context.py\u001b[0m in \u001b[0;36mrunJob\u001b[0;34m(self, rdd, partitionFunc, partitions, allowLocal)\u001b[0m\n\u001b[1;32m    990\u001b[0m         \u001b[0;31m# SparkContext#runJob.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    991\u001b[0m         \u001b[0mmappedRDD\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mrdd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmapPartitions\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpartitionFunc\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 992\u001b[0;31m         \u001b[0mport\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_jvm\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mPythonRDD\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrunJob\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_jsc\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mmappedRDD\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_jrdd\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mpartitions\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    993\u001b[0m         \u001b[0;32mreturn\u001b[0m \u001b[0mlist\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0m_load_from_socket\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mport\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mmappedRDD\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_jrdd_deserializer\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    994\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/spark/python/lib/py4j-0.10.4-src.zip/py4j/java_gateway.py\u001b[0m in \u001b[0;36m__call__\u001b[0;34m(self, *args)\u001b[0m\n\u001b[1;32m   1131\u001b[0m         \u001b[0manswer\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgateway_client\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msend_command\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcommand\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1132\u001b[0m         return_value = get_return_value(\n\u001b[0;32m-> 1133\u001b[0;31m             answer, self.gateway_client, self.target_id, self.name)\n\u001b[0m\u001b[1;32m   1134\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1135\u001b[0m         \u001b[0;32mfor\u001b[0m \u001b[0mtemp_arg\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mtemp_args\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/spark/python/pyspark/sql/utils.py\u001b[0m in \u001b[0;36mdeco\u001b[0;34m(*a, **kw)\u001b[0m\n\u001b[1;32m     61\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mdeco\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0ma\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkw\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     62\u001b[0m         \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 63\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mf\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0ma\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkw\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     64\u001b[0m         \u001b[0;32mexcept\u001b[0m \u001b[0mpy4j\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mprotocol\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mPy4JJavaError\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0me\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     65\u001b[0m             \u001b[0ms\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0me\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mjava_exception\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtoString\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/spark/python/lib/py4j-0.10.4-src.zip/py4j/protocol.py\u001b[0m in \u001b[0;36mget_return_value\u001b[0;34m(answer, gateway_client, target_id, name)\u001b[0m\n\u001b[1;32m    317\u001b[0m                 raise Py4JJavaError(\n\u001b[1;32m    318\u001b[0m                     \u001b[0;34m\"An error occurred while calling {0}{1}{2}.\\n\"\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 319\u001b[0;31m                     format(target_id, \".\", name), value)\n\u001b[0m\u001b[1;32m    320\u001b[0m             \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    321\u001b[0m                 raise Py4JError(\n",
+      "\u001b[0;31mPy4JJavaError\u001b[0m: An error occurred while calling z:org.apache.spark.api.python.PythonRDD.runJob.\n: org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 178673.0 failed 4 times, most recent failure: Lost task 0.3 in stage 178673.0 (TID 556659, mylaptop, executor 3): java.io.IOException: Cannot run program \"/home/hduser1/anaconda3/bin/python\": error=2, No such file or directory\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1048)\n\tat org.apache.spark.api.python.PythonWorkerFactory.startDaemon(PythonWorkerFactory.scala:163)\n\tat org.apache.spark.api.python.PythonWorkerFactory.createThroughDaemon(PythonWorkerFactory.scala:89)\n\tat org.apache.spark.api.python.PythonWorkerFactory.create(PythonWorkerFactory.scala:65)\n\tat org.apache.spark.SparkEnv.createPythonWorker(SparkEnv.scala:117)\n\tat org.apache.spark.api.python.PythonRunner.compute(PythonRDD.scala:128)\n\tat org.apache.spark.api.python.PythonRDD.compute(PythonRDD.scala:63)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:108)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.io.IOException: error=2, No such file or directory\n\tat java.lang.UNIXProcess.forkAndExec(Native Method)\n\tat java.lang.UNIXProcess.<init>(UNIXProcess.java:247)\n\tat java.lang.ProcessImpl.start(ProcessImpl.java:134)\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)\n\t... 14 more\n\nDriver stacktrace:\n\tat org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:1499)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1487)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1486)\n\tat scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)\n\tat scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)\n\tat org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1486)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n\tat org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:814)\n\tat scala.Option.foreach(Option.scala:257)\n\tat org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:814)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:1714)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1669)\n\tat org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:1658)\n\tat org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:48)\n\tat org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:630)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2022)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2043)\n\tat org.apache.spark.SparkContext.runJob(SparkContext.scala:2062)\n\tat org.apache.spark.api.python.PythonRDD$.runJob(PythonRDD.scala:446)\n\tat org.apache.spark.api.python.PythonRDD.runJob(PythonRDD.scala)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)\n\tat py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)\n\tat py4j.Gateway.invoke(Gateway.java:280)\n\tat py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)\n\tat py4j.commands.CallCommand.execute(CallCommand.java:79)\n\tat py4j.GatewayConnection.run(GatewayConnection.java:214)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.io.IOException: Cannot run program \"/home/hduser1/anaconda3/bin/python\": error=2, No such file or directory\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1048)\n\tat org.apache.spark.api.python.PythonWorkerFactory.startDaemon(PythonWorkerFactory.scala:163)\n\tat org.apache.spark.api.python.PythonWorkerFactory.createThroughDaemon(PythonWorkerFactory.scala:89)\n\tat org.apache.spark.api.python.PythonWorkerFactory.create(PythonWorkerFactory.scala:65)\n\tat org.apache.spark.SparkEnv.createPythonWorker(SparkEnv.scala:117)\n\tat org.apache.spark.api.python.PythonRunner.compute(PythonRDD.scala:128)\n\tat org.apache.spark.api.python.PythonRDD.compute(PythonRDD.scala:63)\n\tat org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:323)\n\tat org.apache.spark.rdd.RDD.iterator(RDD.scala:287)\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:87)\n\tat org.apache.spark.scheduler.Task.run(Task.scala:108)\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:335)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n\t... 1 more\nCaused by: java.io.IOException: error=2, No such file or directory\n\tat java.lang.UNIXProcess.forkAndExec(Native Method)\n\tat java.lang.UNIXProcess.<init>(UNIXProcess.java:247)\n\tat java.lang.ProcessImpl.start(ProcessImpl.java:134)\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1029)\n\t... 14 more\n"
+     ]
+    }
+   ],
+   "source": [
+    "dat.rdd.take(1)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
