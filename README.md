@@ -27,7 +27,7 @@ The CDS Data Engineering subteam exists to provide analysis and processing suppo
 * [Siddhant Navali](https://github.com/SiddhantNavali)
 * [Abhinav Prasad](https://github.com/abhinavp99)
 * [Cameron Ibrahim](https://github.com/cai29)
-* [Ethan Cohen]()
+* [Ethan Blake](https://github.com/ethanblake97)
 * [Michael Feigen](https://github.com/michaelfeigen)
 * [Ryan Kannanaikal](https://github.com/rk635)
 * [Tsz Kuk (Daisy) Leung](https://github.com/astro313)
