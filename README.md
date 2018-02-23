@@ -31,3 +31,18 @@ The CDS Data Engineering subteam exists to provide analysis and processing suppo
 * [Michael Feigen](https://github.com/michaelfeigen)
 * [Ryan Kannanaikal](https://github.com/rk635)
 * [Tsz Kuk (Daisy) Leung](https://github.com/astro313)
+
+## Members (SP2018):
+* Jo Chuang
+* Ethan Cohen
+* Audrey Fan
+* Katarina Jankov
+* Ryan Kannanaikal
+* Eashaan Kumar
+* Jeong Hyun Lee
+* Julia Ng
+* Shoheb Ome
+* Alanna Perez
+* Abhinav Prasad
+* Ahad Rizvi
+* Deepti Talesra
