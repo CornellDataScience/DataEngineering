@@ -20,11 +20,7 @@ All computations can be broken down to constituent sub-operations that fall into
 
 Take, for example, a rather trivial process of creating a copy of an array stored in a certain location.(of course, the whole point of the example is to show that the trivial actually turns out to be the non-trivial!) The first element of the existing array is replicated as the first element of the new sequence, with all other elements following suit. This means that, if you have an original sequence of length n, all you need is n processors to transcribe one element each and complete the processes in one step. Therefore the transcription process can seem embarrassingly parallel.This is particularly useful if the said sequence is extremely large and the copy is urgently needed. If resources are available, the transcription can complete several magnitudes faster than what would take for a single processing unit could handle.
 
-<br>
-
-![Paralellism](https://computing.llnl.gov/tutorials/parallel_comp/images/parallelProblem.gif)    
-
-<br>
+![Paralellism](https://computing.llnl.gov/tutorials/parallel_comp/images/parallelProblem.gif)
 
 However, there are caveats to this nifty trick in reality: a machine, even with infinite resources, will not be able to complete the transcription in just one step. For instance, even before the transcription can take place, the machine must find an available storage location for the new sequence, determine the size of storage to allocate, and reserve such a space by creating a pointer. Moreover, these processes must be preceded by the task of determining which cpu gets which element of the array, which can be a complicated assignment task if we wish to coordinate an optimal schedule. In fact, we have also glossed over the complications that come from whether the original array already sits in RAM or in a hard disk. 
   
@@ -41,7 +37,8 @@ for element in array:
   copied_array.append(element)
 ```
 The code looks rather simple, but has many avoidable redundancies lurking inside. To give a little background before we dive into these redundancies, it must be noted that a Python list is simply an array of pointers to different objects. Therefore elements of a list can be of diverse data structures and types, allowing substantial flexibility. However such flexibility comes at a cost: the python interpreter must constantly type-check when iterating or appending to a list to make sure that whatever operation is being done to the list is allowed and the appropriate action taken. For example, a '+' operation can be a numeric addition for a numeric type, but a concatenation when applied to strings. This flexibility in data structures and the implicit type-checking operations are parts of the reason why python is much, much slower compared to languages like C, C++ or Java. (keep in mind however that despite this Python is very widely used in data science for its interpretability and ease of editing)  
-<br>
+
+
 Therefore in the above example, even though our original sequence is in fact all numeric types, Python must constantly check the types of the elements of the original array before appending a copy of it to the new array. Moreover, at every iteration, the machine must locate and allocate new memory spaces. Such operations are clearly redundant, given that we already know before we create the copy the type and length of the sequence to be copied. A common way to tackle the redundant memory allocation problem is proper initialization, as shown below:
 
 
@@ -64,7 +61,6 @@ copied_array = np.array(original_array)
 ```
 Reducing redundant type-checking and implicit interpreter operations this way is often referred to as _vectorization_ and is often one of the best ways to speed up data science operations in commonly used languages like Python and R. Initialization and vectorization are useful data engineering skills to have to speed up your executions.
 
-<br>
 For more information on numpy, please refer to the [numpy documentation](http://www.numpy.org/)
 
 
@@ -73,23 +69,18 @@ For more information on numpy, please refer to the [numpy documentation](http://
 
 While this may sound like a trivial solution,(equivalent "How should I win a 100m sprint?" answered by "Make sure each step is fast") in data science operations often can be made faster either by choosing to solve a different problem that can approximate the true solution, or to choose a different type of machinery/platform to speed up operations. 
 
-<br>
-__Trying to approximate rather than solve directly__   
-
+__Trying to approximate rather than solve directly__   
 
 
 The above image shows the optimization setup for the support vector classifier, a popular classification algorithm. Not just SVMs, but amost all machine learning problems are optimization problems: certain assumption are incorporated into a loss/error function that must be minimized given some input information. Thus advances in this optimization techniques often lead to improvements in machine learning algorithms, as even a small improvement in efficiency can, in large scales, be the difference between the infeasible and the feasible. A detailed overview of optimization techniques is very much beyond the scope of this tutorial, and we would not be able to do the field justice even if we tried. However, we can say that a common theme in optimization is attempting to approximate the optimal solution by solving a different, but easier problem. This technique is commonly referred to as _relaxation_.
 
-<br>
-![Primal Problem for Support Vector Classifier](http://scikit-learn.sourceforge.net/0.5/_images/math/eb74783f01c85187766959706f842a74224e10f4.png =300x)
+![Primal Problem for Support Vector Classifier](http://scikit-learn.sourceforge.net/0.5/_images/math/eb74783f01c85187766959706f842a74224e10f4.png)
 
 Solving relaxations, rather than directly solve for the optimal solution, has several benefits. For instance, one can obtain a feasible, n5ar-optimal solution with relatively shorter amount of time. Also, if there is significant noise to the data, directly solving for the optimum may be infeasible, which could be a/voided. The trade-off is often between feasibility, computation time and accuracy of your solutions.   
 
 A very prominent example of an approximation algorithm is _gradient descent_. For extremely high dimensional problems, directly computing global minima/maxima can be computationally challenging. Therefore gradient descent attempts to iteratively "traverse" a function and approximates the minimum/maximum. For a good intuitive reading on gradient descent, go [here](http://cs231n.github.io/optimization-1/#gd). A visualization of the technique is shown below, where the traversal of the function in iterative fashion is displayed:
 
-<br>
-
-![Gradient descent in action](http://charlesfranzen.com/images/gradient.png =700x)
+![Gradient descent in action](http://charlesfranzen.com/images/gradient.png)
 
 Techniques like gradient descent can significantly reduce runtime, and can also be more conducive to parallelism. Gradient descent also allows one to control error tolerance and learning rate(the rate of traversal), yielding some control of users to more quickly obtain reasonable results. 
 
@@ -97,7 +88,7 @@ __Changing to a faster interface/platform__
 
 It is often the case that simply the platform being used is inferior in speed. For example, python inherently is very inefficient in scheduling parallel tasks - for libraries such as dispy and multiprocecssing. The same can be for languages like R. As was discussed in an earlier section, Python and R often has to carry out intrepreter operations before computations can be made, due to their flexibility and ease of deployment. One may, however, choose to use a platform such as C or C++, which are much faster. Shown below is a comparison of the computation speed of languages. One may use these speed differences as a consideration for switching or sticking to a particular platform.
 
-![Performance Comparison of Languages](https://raid6.com.au/~onlyjob/_arena/speed_close.png =1500x)
+![Performance Comparison of Languages](https://raid6.com.au/~onlyjob/_arena/speed_close.png)
 
 It must be noted, however, that switching is not always the best answer. C/C++ usually lacks the diversity of available libraries and packages, which can significantly slow the speed of development. Sometimes newly developed languages that offer a significant advantage - like Julia, for example - may not gain widespread use because of the lack of community support and incompatibility to already existing data science infrastructure. This inertia can often be quite the dominant force and must be an important part of considerations when selecting the platform/language.
 
@@ -108,9 +99,9 @@ Moreover, it may be sufficient to make languages like Python and R faster by red
 ### Introducing queries and joins
 Another approach to process optimization is not to change the subprocesses themselves, but rather attempt to shift them around in order as to reduce the sizes of intermediate outputs. This is often the key idea behind query optimization in relational databases. For those of you not familiar with relational databases, they are in essence a database that stores data in multiple sub-tables, rather than choosing to store all the data in one table. A schema of a sample relational database is shown below:
 
-<br>
 ![relational database](http://www.databaseanswers.org/data_models/imdb/images/version_showing_attributes.gif)
-<br>
+
+
 As shown above, the entire database is organized into sub-tables, which increases the usefulness of the information. If one is only interested in parts of the data that pertains to a certain category, one only needs to lookup information in a subset of the data. This helps reduce data loads and can enhance lookup speeds.
 
 ```
