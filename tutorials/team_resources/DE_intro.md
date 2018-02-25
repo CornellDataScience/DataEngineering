@@ -150,9 +150,9 @@ WHERE temp1.MovieID = temp2.MovieID;
 The output of this query is the same as the query example before. It also contains an inner join, selection, and projection process. Let's see how these two queries differ by looking at the __order__ of the operations.  
 
 
-1) As SQL queries are done _inside out_, that is to say inner subqueries are executed first, the tables MOovies and Movie_Genres is first filtered using the Movie_Genre_Type and Star Ratings (__Selection__)  
+1) As SQL queries are done _inside out_, that is to say inner subqueries are executed first, the tables Movies and Movie_Genres is first filtered using the Movie_Genre_Type and Star Ratings (__Selection__)  
 
-2) Columns MovieID,Star_Ratings for table Movies, columns MovieID, Movie_Genre_Type for table Movie_Genres is selected and all other columns dropped. (__Projection__)  
+2) Columns MovieID, Star_Ratings for table Movies, columns MovieID, Movie_Genre_Type for table Movie_Genres is selected and all other columns dropped. (__Projection__)  
 
 3) The inner join is done using join condition on MovieID, which both intermediate outputs of the previous steps contain. (__Inner join__)  
 
