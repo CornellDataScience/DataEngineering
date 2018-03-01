@@ -31,7 +31,7 @@ The CDS Data Engineering subteam exists to provide analysis and processing suppo
 * [Jeong Hyun Lee](https://github.com/jeonghlee12)
 * [Julia Ng](https://github.com/ngjulia)
 * [Shoheb Ome](https://github.com/shohtime)
-* [Alanna Perez](https://github.com/aep82)
+* [Alanna Perez](https://github.coecis.cornell.edu/aep82)
 * [Abhinav Prasad](https://github.com/abhinavp99)
 * [Ahad Rizvi](https://github.com/t40tds)
 * [Deepti Talesra](https://github.com/deeptitalesra)
