@@ -21,28 +21,17 @@ The CDS Data Engineering subteam exists to provide analysis and processing suppo
 
 * [Spark diagnostics](https://github.com/CornellDataScience/DataEngineering/tree/master/archive/diagnostics): Deliberate attempts to produce errors while running Apache Spark, both locally and on our servers. Problem specifics and solutions were recorded in case similar issues develop in the future.
 
-
-## Members (FA2017):
-* [Linnea May](https://github.com/linnealovespie)
-* [Siddhant Navali](https://github.com/SiddhantNavali)
-* [Abhinav Prasad](https://github.com/abhinavp99)
-* [Cameron Ibrahim](https://github.com/cai29)
-* [Ethan Blake](https://github.com/ethanblake97)
-* [Michael Feigen](https://github.com/michaelfeigen)
-* [Ryan Kannanaikal](https://github.com/rk635)
-* [Tsz Kuk (Daisy) Leung](https://github.com/astro313)
-
 ## Members (SP2018):
-* Jo Chuang
-* Ethan Cohen
-* Audrey Fan
-* Katarina Jankov
-* Ryan Kannanaikal
-* Eashaan Kumar
-* Jeong Hyun Lee
-* Julia Ng
-* Shoheb Ome
-* Alanna Perez
-* Abhinav Prasad
-* Ahad Rizvi
-* Deepti Talesra
+* [Jo Chuang](https://github.com/josephch405)
+* [Ethan Cohen](https://github.com/ethanblake97)
+* [Audrey Fan](https://github.com/flsaudrey)
+* [Katarina Jankov](https://github.com/kjankov)
+* [Ryan Kannanaikal](https://github.com/rk635)
+* [Eashaan Kumar](https://github.com/eashaank)
+* [Jeong Hyun Lee](https://github.com/jeonghlee12)
+* [Julia Ng](https://github.com/ngjulia)
+* [Shoheb Ome](https://github.com/shohtime)
+* [Alanna Perez](https://github.coecis.cornell.edu/aep82)
+* [Abhinav Prasad](https://github.com/abhinavp99)
+* [Ahad Rizvi](https://github.com/t40tds)
+* [Deepti Talesra](https://github.com/deeptitalesra)
