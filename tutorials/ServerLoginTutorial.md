@@ -92,7 +92,7 @@ ssh-copy-id [username]@[servername]
 ```
 Where \[username\] is your team's username and \[servername\] is the server you want to put the key on. You can test it by trying to ssh into the server again with the `-v` option and seeing if it uses your key or not.
 
-### Configuring your ssh config file
+## Configuring your ssh config file
 To further ease your ability to connect with the servers and also enable you to connect with secondary servers like `gpu1`, you must configure your ssh settings further. Your [config file](https://linux.die.net/man/5/ssh_config) is located at `~/.ssh/config` (or wherever the ssh folder is on windows).
 
 First lets set up the necessary settings to connect to `gpu1`. Because the GPU server is firewalled off from people off-campus (even when using the VPN), we have to to a "multi-hop ssh". Basically, we can't get to `gpu1` from our computer, but `master` can ssh into `gpu1`, so if we ssh into `master` and then ssh into `gpu1` that will enable us to connect. However, running two ssh commands just to connect to `gpu1` is annoying, so there is a better automatic way. We will use the `ProxyJump` option to tell ssh to use `master` as the first hop on the path to `gpu1`. This option only became available in ssh version 7.3, so if you are running a prior version, either update or figure out [an alternative method](https://superuser.com/a/170592). We also want to be able to connect to `gpu1` rather than the actual address which is `server.ryanjbutler.com` for convenience purposes, so to do so we will use the `HostName` option:
