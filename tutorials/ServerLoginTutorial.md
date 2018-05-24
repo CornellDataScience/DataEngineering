@@ -53,7 +53,7 @@ You can also access the cockpit monitoring system using your team account. To do
 The first time you want to log into the server, there are several steps to take to ensure that it will be as easy as possible to connect in the future. You will only have to do this once, so follow the instructions carefully and things will be easy in the future.
 
 ## Getting SSH
-You will first need to install SSH. On linux this is easy, on mac its pretty easy, and on windows its kinda hard. You should google how to do this - but whichever version you install, make sure that it is version 7.3 or later! Otherwise you won't easily be able to connect to the GPU servers. You can check your ssh version with `ssh -V`. On Ubuntu 16.04, the default version is 7.2 so you will have to either upgrade ssh or just install the latest LTS version of Ubuntu, Ubuntu 18.04, which comes with 7.6 by default.
+You will first need to install SSH. On linux this is easy, on mac its pretty easy, and on windows its kinda hard. You should google how to do this.
 
 ## The hosts file
 When you type `www.google.com` into your browser's URL, that request gets sent to a "Domain Name System" (DNS) server, which turns it into an ip address, like `172.217.19.238`.  That ip address is the real address of google's server, and is what the internet actually uses to communicate. Remembering it is hard for humans, which is why DNS lookups are nice.
