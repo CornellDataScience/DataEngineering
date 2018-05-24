@@ -21,7 +21,7 @@ The CDS Servers are hosted at the following locations:
 * 128.84.48.177: slave-1
 * 128.84.48.179: slave-2
 * 128.84.48.180: slave-3
-* server.ryanjbutler.com: gpu1
+* gpu-server-1.cds.engineering.cornell.edu: gpu1
 
 The syntax for logging in is as follows, with \[username\] replaced by the username for your team and \[servername\] replaced with the ip address or domain name of the server you want to connect to:
 ```
@@ -95,17 +95,15 @@ Where \[username\] is your team's username and \[servername\] is the server you 
 ## Configuring your ssh config file
 To further ease your ability to connect with the servers and also enable you to connect with secondary servers like `gpu1`, you must configure your ssh settings further. Your [config file](https://linux.die.net/man/5/ssh_config) is located at `~/.ssh/config` (or wherever the ssh folder is on windows).
 
-First lets set up the necessary settings to connect to `gpu1`. Because the GPU server is firewalled off from people off-campus (even when using the VPN), we have to to a "multi-hop ssh". Basically, we can't get to `gpu1` from our computer, but `master` can ssh into `gpu1`, so if we ssh into `master` and then ssh into `gpu1` that will enable us to connect. However, running two ssh commands just to connect to `gpu1` is annoying, so there is a better automatic way. We will use the `ProxyJump` option to tell ssh to use `master` as the first hop on the path to `gpu1`. This option only became available in ssh version 7.3, so if you are running a prior version, either update or figure out [an alternative method](https://superuser.com/a/170592). We also want to be able to connect to `gpu1` rather than the actual address which is `server.ryanjbutler.com` for convenience purposes, so to do so we will use the `HostName` option:
+First lets set up the necessary settings to connect to `gpu1`. We want to be able to connect to `gpu1` rather than the actual address which is `gpu-server-1.cds.engineering.cornell.edu` for convenience purposes, so to do so we will use the `HostName` option:
 ```ssh_config
 Host gpu1
-  HostName server.ryanjbutler.com
-  ProxyJump [username]@master
+  HostName gpu-server-1.cds.engineering.cornell.edu
 ```
 Now, lets set up some ease of life settings. Whenever using programs that open GUI windows, you can actually get those on your own computer through [X11 Forwarding](https://kb.iu.edu/d/bdnt). We also want to set up SSH agent forwarding so that you don't need to unnecessarily re-enter your ssh private-key password. Finally, we can avoid typing in a username by providing a default username to connect with. The following is what a Deep Learning user might set their `~/.ssh/config` file up as:
 ```ssh_config
 Host gpu1
-  HostName server.ryanjbutler.com
-  ProxyJump master
+  HostName gpu-server-1.cds.engineering.cornell.edu
 
 Host gpu1 master slave-1 slave-2 slave-3
   User deeplearning_1
