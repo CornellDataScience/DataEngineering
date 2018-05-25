@@ -112,3 +112,24 @@ Any server that you anticipate that you will need to log in to, you must put you
 ssh-copy-id [username]@[servername]
 ```
 Where \[username\] is your team's username and \[servername\] is the server you want to put the key on. You can test it by trying to ssh into the server again with the `-v` option and seeing if it uses your key or not.
+
+# Starting the server remotely
+Under normal conditions, the server will stay on forever except in the instance of a superuser invoking `restart`. Generally speaking, this ensures that we can always ssh into the server. However, in the event of power loss server crash, or accidentally running `shutdown -h`, the server will not be accessible via ssh as it will be completely powered off. Luckily there is a mechanism in place to allow remotely powering on the system.
+
+## Wake-on-LAN
+[Wake-on-LAN](https://en.wikipedia.org/wiki/Wake-on-LAN) is a system that enables computers equipped with capable motherboards to power themselves on when detecting a "magic packet", which is a special type of packet that tells the motherboard to power on. It is frequently sent as a [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol) packet to either port 0, 7, or 9. When the motherboard receives the packet, it will then power on the computer. Typically, magic packets can only be sent on the same [LAN](https://en.wikipedia.org/wiki/Local_area_network) as the computer. However because IT has opened all ports to the server, we can actually send the packet remotely.
+
+## How to send the magic packet
+There is a unix utility called `wakeonlan` that will send a magic packet to a given IP and [MAC address](https://en.wikipedia.org/wiki/MAC_address). First, install the program with `sudo apt install wakeonlan`, or the equivalent method on your OS. Then, identify the MAC address of the server. You can get the ip address and MAC address for each of your network adapters by running `ip addr`. Here is a list of the MAC addresses of the different servers:
+```
+00:25:90:69:c4:2a    master
+00:1e:67:06:a4:f8    slave-1
+00:1e:67:06:a4:fc    slave-2
+00:25:90:69:c4:7a    slave-3
+10:7b:44:94:7c:fa    gpu1
+```
+Once you have identified the ip address and MAC address of the target, run the following command:
+```
+wakeonlan -i [ip_address] [mac_address]
+```
+That will send a magic packet to port 9 for the given IP and MAC address. Give the server a minute to start up, then try ssh-ing. It should (hopefully) greet you with a successful ssh login!
