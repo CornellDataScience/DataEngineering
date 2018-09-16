@@ -19,7 +19,7 @@ To access the GPU, you must take the following steps:
 3. Accept changes
 
 ## Checking to make sure the GPU works
-To check that the GPU has been activated, run a code cell containing:
+To check that the GPU has been activated, run the following:
 ```
 import tensorflow as tf
 sess = tf.InteractiveSession()
