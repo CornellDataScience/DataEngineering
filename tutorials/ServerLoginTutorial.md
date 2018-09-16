@@ -12,9 +12,6 @@ The team-username mappings are given below:
 * Data Visualization: datavis_1
 * Deep Learning: deeplearning_1
 * Algorithmic Trading: algo_1
-* Kaggle: kaggle_1
-* Genomics: genomics_1
-* Research/Yelp: yelp_1
 
 The CDS Servers are hosted at the following locations:
 * 128.84.48.178: master
