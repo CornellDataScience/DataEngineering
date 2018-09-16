@@ -35,20 +35,6 @@ Use ssh-keys to log in. If you need to, passwords will be provided by your team 
 
 This will provide you with remote terminal access to the server. From there you can use Bash commands to manipulate files and run programs.
 
-## PySpark
-You can start a Jupyter notebook for PySpark using the command:
-```
-pyspark_yarn
-```
-Be aware that this command will provide a URL similar to the following:
-```
-http://localhost:8888/?token=123456789123456789123456789123456789123456789123
-```
-This URL will not work if you paste it directly into your browser. You must first replace the "localhost" text with the server IP address (128.84.48.178, or master if you have aliased the IP in /etc/hosts).
-
-## Accessing Cockpit
-You can also access the cockpit monitoring system using your team account. To do this, connect to https://128.84.48.178:9090.
-
 # First time setup
 The first time you want to log into the server, there are several steps to take to ensure that it will be as easy as possible to connect in the future. You will only have to do this once, so follow the instructions carefully and things will be easy in the future.
 
