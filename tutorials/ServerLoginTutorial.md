@@ -3,8 +3,11 @@ CDS has several servers, the most important of which are `master` and `gpu1`. Th
 
 Reminder: exercise caution when modifying system files. If you require help, please contact Haram Kim.
 
-## Login Procedure
+## Using the VPN
 
+In order to ensure security as well as enable off-campus access of servers, Cornell requires you to use the Cornell VPN to connect to our server - even on campus (at least for now)! To install and use the Cornell VPN, follow Cornell's instructions [here](https://it.cornell.edu/cuvpn).
+
+## Login Procedure
 As a member of CDS your work on the servers will fall under the account associated with your project/subteam. This classification determines the account that you should use to login (i.e. a Data Visualization member also on Genomics should log in using the DV account for DV work, and the Genomics account for Genomics work).
 
 The team-username mappings are given below:
