@@ -4,7 +4,7 @@
 The CDS Data Engineering subteam exists to provide analysis and processing support to CDS project teams, and to develop institutional knowledge in high throughput computing. 
 
 **Advisor:** [Professor Immanuel Trummer](http://www.itrummer.org/)  
-**Team Leads:** [Dae Won Kim](https://github.com/dwkwvss) (ORIE MENG), [Haram Kim](https://github.com/haramkim-1) (A&S CS 2020) 
+**Team Leads:** [Haram Kim](https://github.com/haramkim-1) (A&S CS 2020) 
 
 ## Team objectives:
 * Improve on existing high throughput computing frameworks
