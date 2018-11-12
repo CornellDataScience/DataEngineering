@@ -20,7 +20,7 @@ Substitute serverteam_1 with the appropriate username, if you aren't on DE.
 
 This opens up an SSH connection and an ssh pipline on port 52698 to your machine. This allows you to use rmate to pipline files from the server to your editor, and perform remote development. If the port is busy, you may need to use a different port, no issue. 
 
-Log in as you would normally, (you should ideally have your ssh public key added to the server to make this easier). Naviage to any file you wish to edit within the filesystem
+Log in as you would normally, (you should ideally have your ssh public key added to the server to make this easier). Navigate to any file you wish to edit within the filesystem
 
 Then you can use the following command to open it
 
