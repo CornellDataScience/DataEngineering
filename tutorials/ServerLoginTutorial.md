@@ -8,7 +8,7 @@ Reminder: exercise caution when modifying system files. If you require help, ple
 In order to ensure security as well as enable off-campus access of servers, Cornell requires you to use the Cornell VPN to connect to our server - *even on campus* (at least for `gpu1`)! To install and use the Cornell VPN, follow Cornell's instructions [here](https://it.cornell.edu/cuvpn).
 
 ## Login Procedure
-As a member of CDS your work on the servers will fall under either an account associated with your project/subteam, or an individual account, depending on if you are using the CPU (`master`) or GPU (`gpu1`) servers. For  access to `gpu1`, contact [Ryan Butler](https://github.com/TheButlah) to get an account. 
+As a member of CDS your work on the servers will fall under either an account associated with your project/subteam, or an individual account, depending on if you are using the CPU (`master`) or GPU (`gpu1`) servers. For  access to `gpu1`, contact Haram Kim or Nolan Gray to get an account. 
 
 The following are the accounts to use for `master` and the related CPU servers.
 
