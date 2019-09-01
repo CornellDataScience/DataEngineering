@@ -1,5 +1,9 @@
 ## Remote Development with VSCode and rmate
 
+# USE THE REMOTE - SSH extension by Microsoft
+
+You can continue to use the method outlined below, but Microsoft has made a convient plugin that requires no server side software. This plugin is better.
+-- -- -- 
 This tutorial is for remote development with ssh pipelining on the CDS server with rmate. As we encourage more and more development on the CDS server `128.84.48.178`, the choice of development platform becomes more of an issue. So far we have either been developing remotely and then pushing to the server for deployment/testing, or developing directly on the server with vim. This is fine, but presents problems if you don't know VIM and increases development time if there's no need to seperate testing/deployment from development, as is the case in some CDS projects. 
 
 You can continue to use VIM if you are familiar with that and are happy with that. This guide is suited for people who don't want to learn VIM and want to keep using an IDE for development. 
