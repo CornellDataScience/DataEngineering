@@ -19,11 +19,11 @@ The CDS Data Engineering subteam exists to provide analysis and processing suppo
 
 
 ## Previous Projects:
-* [Resturaunt Review Dashboard](https://github.com/CornellDataScience/Restuarant_Review):
+* [Resturaunt Review Dashboard](https://github.com/CornellDataScience/Restuarant_Review): A project to gather reviews and produce analytics for local restaurants in Ithaca.
 
-* [Kubernetes Real-Time Face Recognition](https://github.com/CornellDataScience/de-inference-image):
+* [Kubernetes Real-Time Face Recognition](https://github.com/CornellDataScience/de-inference-image): An effort to create a real time face recognition system using CDS compute servers and Kubernetes, in conjunction with a React frontend.
 
-* [Raspberry Pi Distributed Face Detection](https://github.com/CornellDataScience/de-r-pi-cluster): An effort to 
+* [Raspberry Pi Distributed Face Detection](https://github.com/CornellDataScience/de-r-pi-cluster): An effort to build a face detection system spread across three Raspberry Pi boards.
 
 * [Formally Verified DBMS](https://github.com/CornellDataScience/FormalDB): We are setting out to build a prototype formally verified database system. Formal verification is a technique of mathematically proving certain functionality and algorithms. Essentially pre and post conditions are represented as mathematical theorems and proven with a mechanical proof solving system. The core system would be built in Coq and compiled down to OCaml. I/O and command parsing will be written in OCaml.
 
