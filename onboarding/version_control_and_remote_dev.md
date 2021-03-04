@@ -20,6 +20,7 @@
 * `git log`
 * `git log --all --graph --decorate`
 * `.gitignore`
+* `git merge` and conflicts
 * Creating a repo on github 
 * * pushing
 # Working with pull requests 
