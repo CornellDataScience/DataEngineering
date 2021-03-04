@@ -16,6 +16,9 @@
 * `git init` 
 * staging 
 * branching
+* `git checkout`
+* `git log`
+* `git log --all --graph --decorate`
 * `.gitignore`
 * Creating a repo on github 
 * * pushing
