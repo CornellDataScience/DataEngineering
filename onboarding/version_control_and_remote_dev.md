@@ -13,8 +13,14 @@
 * running an executable 
 * background processes 
 # Version Control
-* git init 
+* `git init` 
 * staging 
-* branching 
+* branching
+* `.gitignore`
+* Creating a repo on github 
+* * pushing
 # Working with pull requests 
+* Making a pull request
+* Pull request best practices
 # Remote Development
+* Using VS Code to remote in to a server
