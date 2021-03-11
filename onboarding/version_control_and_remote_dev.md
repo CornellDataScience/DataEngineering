@@ -1,4 +1,5 @@
 # CLI
+* `pwd`
 * `ls` 
 * `cd`
 * `mkdir`
