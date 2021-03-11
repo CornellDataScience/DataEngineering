@@ -2,7 +2,9 @@
 * `pwd`
 * `ls` 
 * `cd`
-* `mkdir`
+* `mkdir/rmdir`
+* `rm`
+* flags
 * `cat`
 * `touch`
 * `vim`
@@ -10,20 +12,22 @@
 * `mv`
 * pipelining
 * `ln`
+* shells (bash/zsh)
 * Makefile
 * running an executable 
-* background processes 
+* background processes
 # Version Control
-* `git init` 
-* staging 
-* branching
+* `git init`
+* staging (`git add/git rm`)
+* committing
+* pushing to/pulling from remote
+* branches
 * `git checkout`
 * `git log`
 * `git log --all --graph --decorate`
 * `.gitignore`
 * `git merge` and conflicts
 * Creating a repo on github 
-* * pushing
 # Working with pull requests 
 * Making a pull request
 * Pull request best practices
